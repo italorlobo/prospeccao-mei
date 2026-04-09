@@ -1,0 +1,26 @@
+[
+  {
+    "codigo": "2051",
+    "nome": "João Pessoa",
+    "uf": "PB",
+    "arquivo": "dados_2051.json"
+  },
+  {
+    "codigo": "2110",
+    "nome": "Campina Grande",
+    "uf": "PB",
+    "arquivo": "dados_2110.json"
+  },
+  {
+    "codigo": "2180",
+    "nome": "Patos",
+    "uf": "PB",
+    "arquivo": "dados_2180.json"
+  },
+  {
+    "codigo": "2090",
+    "nome": "Santa Rita",
+    "uf": "PB",
+    "arquivo": "dados_2090.json"
+  }
+]
