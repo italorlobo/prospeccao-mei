@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prospecção MEI — João Pessoa e Paraíba</title>
+<style>
+  :root {
+    --bg: #f5f4f0;
+    --card: #ffffff;
+    --border: #e2e0d8;
+    --text: #1a1a18;
+    --muted: #6b6b65;
+    --accent: #1d4ed8;
+    --accent-bg: #eff6ff;
+    --danger: #dc2626;
+    --danger-bg: #fef2f2;
+    --success: #16a34a;
+    --success-bg: #f0fdf4;
+    --warn: #d97706;
+    --warn-bg: #fffbeb;
+    --wa: #25D366;
+    --radius: 10px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #111110; --card: #1c1c1a; --border: #2e2e2b;
+      --text: #f0ede4; --muted: #8a8a82;
+      --accent: #60a5fa; --accent-bg: #1e3a5f;
+      --danger: #f87171; --danger-bg: #3b1414;
+      --success: #4ade80; --success-bg: #14301e;
+      --warn: #fbbf24; --warn-bg: #332200;
+    }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+         background: var(--bg); color: var(--text); font-size: 15px; }
+  .header { background: var(--card); border-bottom: 1px solid var(--border);
+            padding: 16px 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .header-title { font-size: 18px; font-weight: 600; }
+  .header-sub { font-size: 13px; color: var(--muted); }
+  .updated-tag { margin-left: auto; font-size: 12px; color: var(--muted);
+                 background: var(--bg); padding: 4px 10px; border-radius: 99px;
+                 border: 1px solid var(--border); }
+  .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+  .filters { background: var(--card); border: 1px solid var(--border);
+             border-radius: var(--radius); padding: 16px 20px; margin-bottom: 16px; }
+  .filters-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; }
+  .field { display: flex; flex-direction: column; gap: 5px; }
+  .field label { font-size: 12px; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+  select, input[type=text], input[type=number] {
+    height: 38px; padding: 0 12px; border: 1px solid var(--border);
+    border-radius: 8px; background: var(--bg); color: var(--text);
+    font-size: 14px; min-width: 160px;
+  }
+  select:focus, input:focus { outline: 2px solid var(--accent); outline-offset: -1px; border-color: transparent; }
+  .toggle-group { display: flex; gap: 6px; flex-wrap: wrap; }
+  .toggle { display: flex; align-items: center; gap: 6px; padding: 6px 12px;
+            border: 1px solid var(--border); border-radius: 8px; cursor: pointer;
+            font-size: 13px; background: var(--bg); color: var(--muted); transition: .15s; }
+  .toggle.on { background: var(--accent-bg); border-color: var(--accent); color: var(--accent); }
+  .toggle input { display: none; }
+  .btn { height: 38px; padding: 0 18px; border-radius: 8px; font-size: 14px;
+         font-weight: 500; cursor: pointer; border: 1px solid var(--border);
+         background: var(--card); color: var(--text); display: inline-flex;
+         align-items: center; gap: 6px; transition: .15s; }
+  .btn:hover { background: var(--bg); }
+  .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .btn-primary:hover { opacity: .88; background: var(--accent); }
+  .btn-csv { color: var(--success); border-color: var(--success);
+             background: var(--success-bg); }
+  .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px,1fr)); gap: 10px; margin-bottom: 16px; }
+  .metric { background: var(--card); border: 1px solid var(--border);
+            border-radius: var(--radius); padding: 12px 16px; }
+  .metric .lbl { font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+  .metric .val { font-size: 24px; font-weight: 600; }
+  .metric .val.red { color: var(--danger); }
+  .metric .val.green { color: var(--success); }
+  .table-wrap { background: var(--card); border: 1px solid var(--border);
+                border-radius: var(--radius); overflow: hidden; }
+  .table-toolbar { padding: 12px 16px; border-bottom: 1px solid var(--border);
+                   display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .search-inp { flex: 1; min-width: 220px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { padding: 10px 12px; text-align: left; font-size: 11px; font-weight: 600;
+       color: var(--muted); text-transform: uppercase; letter-spacing: .05em;
+       border-bottom: 1px solid var(--border); white-space: nowrap; }
+  td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--bg); }
+  .badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 99px; font-size: 11px; font-weight: 500; }
+  .badge-green { background: var(--success-bg); color: var(--success); }
+  .badge-red   { background: var(--danger-bg); color: var(--danger); }
+  .badge-blue  { background: var(--accent-bg); color: var(--accent); }
+  .badge-warn  { background: var(--warn-bg); color: var(--warn); }
+  .badge-gray  { background: var(--bg); color: var(--muted); border: 1px solid var(--border); }
+  .wa-btn { display: inline-flex; align-items: center; gap: 5px; padding: 5px 10px;
+            border-radius: 8px; font-size: 12px; font-weight: 500;
+            background: var(--wa); color: #fff; text-decoration: none; white-space: nowrap; }
+  .wa-btn:hover { opacity: .85; }
+  .wa-btn svg { flex-shrink: 0; }
+  .pag { display: flex; align-items: center; gap: 10px; padding: 12px 16px;
+         border-top: 1px solid var(--border); font-size: 13px; color: var(--muted); justify-content: flex-end; }
+  .loading { display: flex; align-items: center; justify-content: center;
+             padding: 48px; color: var(--muted); gap: 10px; font-size: 15px; }
+  .spinner { width: 20px; height: 20px; border: 2px solid var(--border);
+             border-top-color: var(--accent); border-radius: 50%; animation: spin .8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .empty { text-align: center; padding: 48px; color: var(--muted); }
+  .notice { background: var(--warn-bg); border: 1px solid var(--border);
+            border-radius: var(--radius); padding: 12px 16px; font-size: 13px;
+            color: var(--warn); margin-bottom: 16px; }
+  .cnpj-mono { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 12px; }
+  @media (max-width: 600px) {
+    .container { padding: 12px; }
+    .filters-row { flex-direction: column; }
+    select, input { min-width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <div class="header-title">Prospecção MEI</div>
+    <div class="header-sub">Cruzamento automático: Receita Federal · PGFN · Simples Nacional</div>
+  </div>
+  <div class="updated-tag" id="updated-tag">carregando...</div>
+</div>
+
+<div class="container">
+  <div id="notice-demo" class="notice" style="display:none">
+    Os dados abaixo são os gerados automaticamente pelo GitHub Actions. Atualização todo dia 1º do mês.
+  </div>
+
+  <!-- FILTROS -->
+  <div class="filters">
+    <div class="filters-row" style="margin-bottom:12px;">
+      <div class="field">
+        <label>Estado</label>
+        <select id="sel-uf" onchange="onUfChange()">
+          <option value="">Todos</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Município</label>
+        <select id="sel-mun" onchange="carregarMunicipio()">
+          <option value="">Selecione</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Tipo</label>
+        <select id="sel-tipo">
+          <option value="mei">S = MEI</option>
+          <option value="nao">N = Não MEI</option>
+          <option value="todos">Todos</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Situação</label>
+        <select id="sel-sit">
+          <option value="ativo">Ativa</option>
+          <option value="todos">Todas</option>
+          <option value="baixado">Baixada</option>
+          <option value="suspensa">Suspensa</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Dívida mínima (R$)</label>
+        <input type="number" id="inp-min" value="0" min="0" style="min-width:120px;">
+      </div>
+    </div>
+    <div class="filters-row" style="margin-bottom:12px;">
+      <div class="field">
+        <label>Irregularidades — cruzar com:</label>
+        <div class="toggle-group">
+          <label class="toggle on" id="t-divida"><input type="checkbox" checked onchange="toggleClass(this,'t-divida')"> Dívida ativa PGFN</label>
+          <label class="toggle on" id="t-das"><input type="checkbox" checked onchange="toggleClass(this,'t-das')"> Ausência de DAS</label>
+          <label class="toggle on" id="t-irr"><input type="checkbox" checked onchange="toggleClass(this,'t-irr')"> Irregularidade fiscal</label>
+        </div>
+      </div>
+    </div>
+    <div class="filters-row">
+      <button class="btn btn-primary" onclick="aplicarFiltros()">Buscar e cruzar dados</button>
+      <button class="btn btn-csv" onclick="exportarCSV()">Exportar CSV</button>
+      <button class="btn" onclick="limpar()">Limpar</button>
+    </div>
+  </div>
+
+  <!-- MÉTRICAS -->
+  <div class="metrics">
+    <div class="metric"><div class="lbl">Encontrados</div><div class="val" id="m-total">—</div></div>
+    <div class="metric"><div class="lbl">Dívida ativa</div><div class="val red" id="m-divida">—</div></div>
+    <div class="metric"><div class="lbl">Sem DAS</div><div class="val red" id="m-das">—</div></div>
+    <div class="metric"><div class="lbl">Irregulares</div><div class="val red" id="m-irr">—</div></div>
+    <div class="metric"><div class="lbl">Com telefone</div><div class="val green" id="m-tel">—</div></div>
+    <div class="metric"><div class="lbl">Dívida total</div><div class="val red" id="m-valor">—</div></div>
+  </div>
+
+  <!-- TABELA -->
+  <div class="table-wrap">
+    <div class="table-toolbar">
+      <input class="search-inp" type="text" placeholder="Buscar por CNPJ, nome ou bairro..." id="inp-q" oninput="renderTabela()">
+      <span id="pag-info" style="font-size:13px; color:var(--muted); white-space:nowrap;"></span>
+      <button class="btn" onclick="pagAnterior()">← Ant.</button>
+      <button class="btn" onclick="proxPag()">Próx. →</button>
+    </div>
+    <div id="tabela-container">
+      <div class="loading"><div class="spinner"></div> Selecione um município para carregar os dados</div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Estado ────────────────────────────────────────────────────────────────
+let dadosBrutos   = [];
+let dadosFiltrados = [];
+let pagAtual = 1;
+const POR_PAG = 50;
+
+const MUNICIPIOS_ESTATICOS = [
+  { codigo: "2051", nome: "João Pessoa",    uf: "PB", arquivo: "dados_2051.json" },
+  { codigo: "2110", nome: "Campina Grande", uf: "PB", arquivo: "dados_2110.json" },
+  { codigo: "2180", nome: "Patos",          uf: "PB", arquivo: "dados_2180.json" },
+  { codigo: "2090", nome: "Santa Rita",     uf: "PB", arquivo: "dados_2090.json" },
+  { codigo: "0001", nome: "São Paulo",      uf: "SP", arquivo: "dados_0001.json" },
+  { codigo: "0013", nome: "Rio de Janeiro", uf: "RJ", arquivo: "dados_0013.json" },
+];
+
+// ── Init ──────────────────────────────────────────────────────────────────
+(async function init() {
+  let municipios = MUNICIPIOS_ESTATICOS;
+  try {
+    const r = await fetch("municipios.json");
+    if (r.ok) municipios = await r.json();
+  } catch (_) {}
+
+  const ufs = [...new Set(municipios.map(m => m.uf || "PB"))].sort();
+  const selUF = document.getElementById("sel-uf");
+  ufs.forEach(uf => selUF.innerHTML += `<option value="${uf}">${uf}</option>`);
+
+  window._municipios = municipios;
+  selUF.value = "PB";
+  onUfChange();
+
+  // Pré-carrega João Pessoa
+  document.getElementById("sel-mun").value = "2051";
+  await carregarMunicipio();
+})();
+
+function onUfChange() {
+  const uf = document.getElementById("sel-uf").value;
+  const muns = window._municipios.filter(m => !uf || (m.uf || "PB") === uf);
+  const sel = document.getElementById("sel-mun");
+  sel.innerHTML = '<option value="">Selecione</option>';
+  muns.forEach(m => sel.innerHTML += `<option value="${m.codigo}">${m.nome} — ${m.codigo}</option>`);
+  if (uf === "PB") sel.value = "2051";
+}
+
+async function carregarMunicipio() {
+  const cod = document.getElementById("sel-mun").value;
+  if (!cod) return;
+  const mun = (window._municipios || MUNICIPIOS_ESTATICOS).find(m => m.codigo === cod);
+  if (!mun) return;
+
+  document.getElementById("tabela-container").innerHTML =
+    '<div class="loading"><div class="spinner"></div> Carregando dados de ' + mun.nome + '...</div>';
+
+  try {
+    const r = await fetch(mun.arquivo);
+    if (!r.ok) throw new Error("não encontrado");
+    const json = await r.json();
+    dadosBrutos = json.registros || [];
+    document.getElementById("updated-tag").textContent =
+      "Atualizado em " + new Date(json.gerado_em).toLocaleDateString("pt-BR");
+    document.getElementById("notice-demo").style.display = "block";
+    aplicarFiltros();
+  } catch (_) {
+    dadosBrutos = getDemoData();
+    document.getElementById("updated-tag").textContent = "Dados de demonstração";
+    aplicarFiltros();
+  }
+}
+
+// ── Filtros ───────────────────────────────────────────────────────────────
+function aplicarFiltros() {
+  const tipo  = document.getElementById("sel-tipo").value;
+  const sit   = document.getElementById("sel-sit").value;
+  const minV  = parseFloat(document.getElementById("inp-min").value) || 0;
+  const fDiv  = document.getElementById("t-divida").querySelector("input").checked;
+  const fDas  = document.getElementById("t-das").querySelector("input").checked;
+  const fIrr  = document.getElementById("t-irr").querySelector("input").checked;
+
+  dadosFiltrados = dadosBrutos.filter(r => {
+    if (tipo === "mei"  && !r.mei)  return false;
+    if (tipo === "nao"  &&  r.mei)  return false;
+    if (sit  === "ativo"    && !r.ativo)            return false;
+    if (sit  === "baixado"  && r.status !== "Baixada")   return false;
+    if (sit  === "suspensa" && r.status !== "Suspensa")  return false;
+    if (r.valor < minV) return false;
+    const irr = (fDiv && r.divida) || (fDas && !r.das) || (fIrr && r.irr);
+    if ((fDiv || fDas || fIrr) && !irr) return false;
+    return true;
+  });
+
+  pagAtual = 1;
+  atualizarMetricas();
+  renderTabela();
+}
+
+function atualizarMetricas() {
+  const d = dadosFiltrados;
+  document.getElementById("m-total").textContent  = d.length.toLocaleString("pt-BR");
+  document.getElementById("m-divida").textContent = d.filter(r => r.divida).length.toLocaleString("pt-BR");
+  document.getElementById("m-das").textContent    = d.filter(r => !r.das).length.toLocaleString("pt-BR");
+  document.getElementById("m-irr").textContent    = d.filter(r => r.irr).length.toLocaleString("pt-BR");
+  document.getElementById("m-tel").textContent    = d.filter(r => r.tel).length.toLocaleString("pt-BR");
+  const soma = d.reduce((s,r) => s + (r.valor||0), 0);
+  document.getElementById("m-valor").textContent  = "R$ " + soma.toLocaleString("pt-BR", {minimumFractionDigits:0, maximumFractionDigits:0});
+}
+
+// ── Tabela ────────────────────────────────────────────────────────────────
+function renderTabela() {
+  const q = document.getElementById("inp-q").value.toLowerCase().trim();
+  const lista = q
+    ? dadosFiltrados.filter(r =>
+        r.cnpj.includes(q) || r.nome.toLowerCase().includes(q) ||
+        (r.bairro||"").toLowerCase().includes(q))
+    : dadosFiltrados;
+
+  const totalPags = Math.max(1, Math.ceil(lista.length / POR_PAG));
+  if (pagAtual > totalPags) pagAtual = totalPags;
+  const slice = lista.slice((pagAtual-1)*POR_PAG, pagAtual*POR_PAG);
+  document.getElementById("pag-info").textContent =
+    `${lista.length.toLocaleString("pt-BR")} registros · Página ${pagAtual}/${totalPags}`;
+
+  if (!slice.length) {
+    document.getElementById("tabela-container").innerHTML =
+      '<div class="empty">Nenhum registro encontrado com os filtros selecionados.</div>';
+    return;
+  }
+
+  const rows = slice.map(r => {
+    const sitBadge = r.ativo
+      ? '<span class="badge badge-green">Ativa</span>'
+      : `<span class="badge badge-gray">${r.status||"Baixada"}</span>`;
+    const divBadge = r.divida
+      ? '<span class="badge badge-red">Sim</span>'
+      : '<span class="badge badge-green">Não</span>';
+    const dasBadge = r.das
+      ? '<span class="badge badge-green">Regular</span>'
+      : '<span class="badge badge-red">Ausente</span>';
+    const meiTag = r.mei
+      ? '<span class="badge badge-blue" style="margin-left:4px;">MEI</span>' : "";
+    const valFmt = r.valor > 0
+      ? `<span style="color:var(--danger)">R$ ${r.valor.toLocaleString("pt-BR",{minimumFractionDigits:2})}</span>`
+      : '<span style="color:var(--muted)">—</span>';
+    const waBtn = r.tel
+      ? `<a href="https://wa.me/55${r.tel.replace(/\D/g,"")}" target="_blank" class="wa-btn">
+           <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.126 1.536 5.858L0 24l6.302-1.516A11.94 11.94 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.865 0-3.617-.5-5.13-1.374l-.367-.218-3.742.9.943-3.64-.24-.378A9.97 9.97 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
+           ${r.tel}
+         </a>`
+      : '<span style="color:var(--muted);font-size:12px;">—</span>';
+
+    return `<tr>
+      <td class="cnpj-mono">${r.cnpj}</td>
+      <td>${r.nome}${meiTag}</td>
+      <td>${r.uf||"PB"}</td>
+      <td>${sitBadge}</td>
+      <td>${divBadge}</td>
+      <td>${dasBadge}</td>
+      <td>${valFmt}</td>
+      <td style="font-size:12px;color:var(--muted);">${r.email||"—"}</td>
+      <td>${waBtn}</td>
+    </tr>`;
+  }).join("");
+
+  document.getElementById("tabela-container").innerHTML = `
+    <div style="overflow-x:auto;">
+      <table>
+        <thead><tr>
+          <th>CNPJ</th><th>Razão social</th><th>UF</th><th>Situação</th>
+          <th>Dívida ativa</th><th>DAS</th><th>Valor dívida</th>
+          <th>E-mail</th><th>WhatsApp</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+    <div class="pag">
+      <button class="btn" onclick="pagAnterior()">← Anterior</button>
+      <span id="pag-info2" style="font-size:13px;color:var(--muted);">Página ${pagAtual} de ${totalPags}</span>
+      <button class="btn" onclick="proxPag()">Próxima →</button>
+    </div>`;
+}
+
+function pagAnterior() { if (pagAtual > 1) { pagAtual--; renderTabela(); } }
+function proxPag() {
+  const q = document.getElementById("inp-q").value.toLowerCase();
+  const lista = q ? dadosFiltrados.filter(r => r.cnpj.includes(q)||r.nome.toLowerCase().includes(q)) : dadosFiltrados;
+  const tp = Math.ceil(lista.length / POR_PAG);
+  if (pagAtual < tp) { pagAtual++; renderTabela(); }
+}
+
+// ── Export CSV ────────────────────────────────────────────────────────────
+function exportarCSV() {
+  if (!dadosFiltrados.length) { alert("Execute uma busca primeiro."); return; }
+  const h = "CNPJ;Nome;UF;Situação;MEI;Dívida Ativa;DAS Regular;Valor Dívida;Email;Telefone;Link WhatsApp\n";
+  const rows = dadosFiltrados.map(r =>
+    [r.cnpj, r.nome, r.uf||"PB", r.status, r.mei?"S":"N",
+     r.divida?"S":"N", r.das?"S":"N",
+     r.valor.toFixed(2).replace(".",","),
+     r.email||"", r.tel||"",
+     r.tel ? `https://wa.me/55${r.tel.replace(/\D/g,"")}` : ""
+    ].join(";")
+  ).join("\n");
+  const blob = new Blob(["\uFEFF"+h+rows], {type:"text/csv;charset=utf-8;"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `prospeccao_mei_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+}
+
+function limpar() {
+  document.getElementById("inp-q").value = "";
+  document.getElementById("inp-min").value = "0";
+  document.getElementById("sel-tipo").value = "mei";
+  document.getElementById("sel-sit").value = "ativo";
+  aplicarFiltros();
+}
+
+function toggleClass(el, id) {
+  document.getElementById(id).classList.toggle("on", el.checked);
+}
+
+// ── Dados de demonstração (quando JSON ainda não existe) ──────────────────
+function getDemoData() {
+  return [
+    {cnpj:"08.234.567/0001-90",nome:"Maria Costura ME",mei:true,ativo:true,status:"Ativa",divida:true,das:false,irr:true,valor:1250.00,tel:"83991112233",email:"",uf:"PB"},
+    {cnpj:"12.345.678/0001-11",nome:"João Lanches MEI",mei:true,ativo:true,status:"Ativa",divida:true,das:true,irr:true,valor:3800.50,tel:"83998887766",email:"",uf:"PB"},
+    {cnpj:"23.456.789/0001-22",nome:"Ana Estetica MEI",mei:true,ativo:true,status:"Ativa",divida:false,das:false,irr:true,valor:0,tel:"83977776655",email:"ana@email.com",uf:"PB"},
+    {cnpj:"34.567.890/0001-33",nome:"Carlos Auto Peças",mei:false,ativo:true,status:"Ativa",divida:true,das:false,irr:true,valor:12500.00,tel:"83966665544",email:"",uf:"PB"},
+    {cnpj:"45.678.901/0001-44",nome:"Lúcia Doces MEI",mei:true,ativo:true,status:"Ativa",divida:true,das:true,irr:true,valor:890.00,tel:"83955554433",email:"",uf:"PB"},
+    {cnpj:"56.789.012/0001-55",nome:"Pedro TI MEI",mei:true,ativo:true,status:"Ativa",divida:false,das:false,irr:true,valor:0,tel:"83944443322",email:"pedro@ti.com",uf:"PB"},
+    {cnpj:"67.890.123/0001-66",nome:"Rosa Moda Feminina",mei:true,ativo:false,status:"Baixada",divida:true,das:true,irr:true,valor:4200.00,tel:"",email:"",uf:"PB"},
+    {cnpj:"78.901.234/0001-77",nome:"Fernanda Artesanato",mei:true,ativo:true,status:"Ativa",divida:true,das:false,irr:true,valor:720.00,tel:"83933332211",email:"",uf:"PB"},
+  ];
+}
+</script>
+</body>
+</html>

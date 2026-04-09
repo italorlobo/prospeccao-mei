@@ -1,0 +1,7 @@
+data/*.zip
+data/*.csv
+data/*.txt
+data/prospeccao.db
+__pycache__/
+*.pyc
+.DS_Store

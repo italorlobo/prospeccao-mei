@@ -1,0 +1,44 @@
+name: Atualização automática das bases MEI
+
+on:
+  schedule:
+    # Executa todo dia 1º do mês às 03:00 (horário de Brasília = 06:00 UTC)
+    - cron: "0 6 1 * *"
+
+  # Permite rodar manualmente pelo painel do GitHub
+  workflow_dispatch:
+
+jobs:
+  atualizar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120   # bases grandes podem demorar
+
+    permissions:
+      contents: write      # necessário para fazer push do JSON gerado
+
+    steps:
+      - name: Clonar repositório
+        uses: actions/checkout@v4
+
+      - name: Configurar Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Instalar dependências
+        run: |
+          pip install requests
+
+      - name: Criar pasta de dados
+        run: mkdir -p data docs
+
+      - name: Executar script de atualização
+        run: python scripts/atualizar_dados.py
+
+      - name: Commit e push dos JSONs gerados
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/*.json
+          git diff --cached --quiet || git commit -m "dados: atualização automática $(date +'%d/%m/%Y')"
+          git push
